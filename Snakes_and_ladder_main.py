@@ -663,23 +663,31 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
     elif map_dict[new_pos] == "H":
         pass
     elif map_dict[new_pos] in player_list:
+        # if map is full there will be bugs
+        n = 0
+        placeholder = True
         dead_player = map_dict[new_pos]
-        while True:
-            for i in range(1,x+1):
-                if f"c{i}r1" in player_list:
-                    break
-                else:
-                    smth = i # placeholder name
-                    new_dead_player = f"c{smth}r1"
-            if smth:
-                map_dict[dead_player] = map_dict_org[dead_player]
-                map_dict[new_dead_player] = map_dict[new_pos]
-                last_location[dead_player] = new_dead_player
+        for i in range(1,x+1):
+            if f"c{i}r1" in player_list and placeholder:
+                n += 1
 
-                map_dict[old_pos] = map_dict_org[old_pos]
-                map_dict[new_pos] = player
-                last_location[player] = new_pos
-                return map_dict,last_location
+            elif not f"c{i}r1" in player_list and placeholder:
+                smth = i # placeholder name
+                new_dead_player = f"c{smth}r1"
+                placeholder = False
+        if n == x:
+            smth = old_pos
+        if smth:
+
+            map_dict[dead_player] = map_dict_org[dead_player]
+            map_dict[new_dead_player] = map_dict[new_pos]
+            last_location[dead_player] = new_dead_player
+
+            map_dict[old_pos] = map_dict_org[old_pos]
+            map_dict[new_pos] = player
+            last_location[player] = new_pos
+
+            return map_dict,last_location
 
     else:
         map_dict[old_pos] = map_dict_org[old_pos]
@@ -729,3 +737,4 @@ player_dict = create_player(2,2,x,y)
 print (player_dict)
 
 print(calculate_pos(2,2,x,y,0,map_dict))
+
