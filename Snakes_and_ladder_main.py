@@ -33,6 +33,35 @@ layer 5 - > new_board , stores only the nums , constantly being emptied and fill
 
 # make the odd row movement calc
 
+
+
+# ----------- Architecture ----------- #
+"""create_board(map_dict,board,x,y)
+display_board(board,x,y)
+map_dict,snakes_ladders = create_snake(snakes_ladders, map_dict, board, x, y)
+map_dict,snakes_ladders = create_ladder(snakes_ladders,map_dict,board,x,y)
+map_dict_org = map_dict.copy() # Static backup for restoring cells during movement (no players)
+print(snakes_ladders)
+
+board= []
+create_board(map_dict,board,x,y)
+display_board(board,x,y)
+
+player_list = create_player2(2,2,x,y)
+map_dict,last_location = player_placement(map_dict,player_list,True)
+
+board = []
+create_board(map_dict, board, x, y)
+display_board(board,x,y)
+
+final_col,final_row = calculate_pos(1,1,x,y,20,map_dict)
+player_movement(map_dict,map_dict_org,"player1",player_list,last_location, final_col, final_row, snakes_ladders)
+
+board = []
+create_board(map_dict, board, x, y)
+display_board(board,x,y)"""
+
+
 map_dict = {}
 board = []
 snakes_ladders = {}
@@ -672,22 +701,70 @@ def player_placement(map_dict,player_list,turn_0):
 
 
 def player_movement(map_dict,map_dict_org,player,player_list,last_location,final_col,final_row,snakes_ladders):
+    # the snake part for some reason wouldnt work at all and now it magically works so i dont know
+    # dont touch anything i guess.
+    # i will just copy and paste it onto ladder
+
     old_pos = last_location[player]
     new_pos = f"c{final_col}r{final_row}"
+    #*-------------------SNAKE-------------------*#
     if map_dict[new_pos] == "V":
+        print("WE ARE IN V")
+        print("new_pos",new_pos)
         placeholder = False
         for i in snakes_ladders:
+            print("i",i)
+            print("snakes_ladders[i]",snakes_ladders[i])
             if i.startswith("snake_head"):
                 if new_pos == snakes_ladders[i] and not placeholder:
                     placeholder = i.replace("snake_head","")
                     print(placeholder)
-                    break
+                    #return map_dict,last_location
         if placeholder:
             final_col,final_row = parse_coord(snakes_ladders[f"snake_tail{placeholder}"])
-            return player_movement(map_dict, map_dict_org, player, player_list, last_location, final_col, final_row, snakes_ladders)
+            """return player_movement(map_dict, map_dict_org, player, player_list, last_location, final_col, final_row, snakes_ladders)"""
+            new_pos = f"c{final_col}r{final_row}"
+            if map_dict[new_pos] == "^":
+                print(map_dict[old_pos])
+                map_dict[old_pos] = map_dict_org[old_pos]
+                print(map_dict[old_pos])
+                print(map_dict_org[old_pos])
+                map_dict[new_pos] = player
+                last_location[player] = new_pos
+                return map_dict, last_location
+            elif map_dict[new_pos] in player_list:
+                # if map is full there will be bugs - fixed
+                n = 0
+                trying = True
+                dead_player = map_dict[new_pos]
+                a = dead_player
+                for i in range(1, x + 1):
+                    if f"c{i}r1" in player_list and trying:
+                        n += 1
 
+                    elif not f"c{i}r1" in player_list and trying:
+                        empty_space = i
+                        new_dead_player = f"c{empty_space}r1"
+                        trying = False
+                if n == x:
+                    empty_space = old_pos
+                if empty_space:
+                    map_dict[dead_player] = map_dict_org[last_location[dead_player]]
+                    map_dict[new_dead_player] = dead_player
+                    last_location[dead_player] = new_dead_player
+
+                    # map_dict[new_dead_player] = map_dict[new_pos]
+                    # last_location[dead_player] = new_dead_player
+                    # map_dict[old_pos] = map_dict_org[old_pos]
+
+                    map_dict[new_pos] = player
+                    last_location[player] = new_pos
+                    return map_dict, last_location
+    #*-------------------LADDER-------------------*#
     elif map_dict[new_pos] == "H":
-        pass
+        return map_dict, last_location
+
+    #*-------------------PLAYER-------------------*#
     elif map_dict[new_pos] in player_list:
         # if map is full there will be bugs - fixed
         n = 0
@@ -719,6 +796,7 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
             return map_dict,last_location
 
     else:
+        #*-------------------NORMAL-------------------*#
         print(map_dict[old_pos])
         map_dict[old_pos] = map_dict_org[old_pos]
         print(map_dict[old_pos])
@@ -726,8 +804,75 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
         map_dict[new_pos] = player
         last_location[player] = new_pos
         return map_dict,last_location
-    return "bug"
-map_create(map_dict,x,y)
+
+# HOW TO SETUP :
+#   map_create ( map_dict )
+#   create_board ( map_dict )
+#   display_board
+#   map_dict,snakes_ladders = create_snake(snakes_ladders,map_dict,board,x,y)
+#   map_dict_org = map_dict.copy()
+
+
+
+"""1. INITIALIZE BOARD
+
+map_dict = create original board (layer 1)
+
+board = flat list from map_dict
+
+Display board (visual check)
+
+2. GENERATE SNAKES & LADDERS
+
+snakes_ladders = empty dict
+
+create_snake → modifies map_dict, returns (map_dict, snakes_ladders)
+
+create_ladder → modifies map_dict, returns (map_dict, snakes_ladders)
+
+map_dict_org = map_dict.copy() ← save original values (before players)
+
+3. CREATE CORRECTED DICT (layer 4/5)
+
+new_dict = empty dict
+
+display_board(board, x, y, new_dict) → generates new_dict and new_board
+
+create_snake on new_dict (overwrites snakes_ladders?)
+
+create_ladder on new_dict
+
+4. PLAYER PLACEMENT
+
+player_list = list of player/cpu names
+
+player_placement(new_dict, player_list, True) → places players on board
+
+last_location = tracks player positions
+
+5. GAME LOOP (per move)
+
+calculate_pos(col, row, x, y, dice, map_dict) → gets new coordinates
+
+player_movement(map_dict, map_dict_org, player, player_list, last_location, final_col, final_row, snakes_ladders)
+
+Restores old cell from map_dict_org
+
+Places player on new cell
+
+Updates last_location
+
+create_board → refresh display
+
+display_board → show updated board
+
+CRITICAL DEPENDENCY: map_dict_org must stay unchanged after Step 2. It's the source of truth for restoring empty cells."""
+
+
+
+
+
+"""map_create(map_dict,x,y)
 #print(map_create(map_dict,5,5))
 print(map_dict)
 print(map_dict.values())
@@ -758,13 +903,15 @@ print(board)
 
 display_board(new_board,x,y)
 temp = []
-new_dict,snakes_ladders = create_snake(snakes_ladders,new_dict,new_board,x,y)
-new_dict,snakes_ladders = create_ladder(snakes_ladders,new_dict,new_board,x,y)
+map_dict,snakes_ladders = create_snake(snakes_ladders,new_dict,new_board,x,y)
+map_dict,snakes_ladders = create_ladder(snakes_ladders,new_dict,new_board,x,y)
 temp = create_board(new_dict,temp,x,y)
 display_board(temp,x,y)
+
 #new_dict,snakes_ladders = create_snake(snakes_ladders,new_dict,board,10,10)
 #display_board(board1,10,10)
 #print(snakes_ladders)
+
 print(map_dict["c1r1"])
 print(new_dict["c1r1"])
 print(map_dict["c1r2"])
@@ -786,7 +933,7 @@ display_board(board,x,y)
 print(new_dict["c1r1"])
 print(last_location)
 
-new_dict,last_location = player_placement(map_dict,player_list,True)
+map_dict,last_location = player_placement(map_dict,player_list,True)
 board = []
 board = create_board(map_dict, board, x, y)
 display_board(board,x,y)
@@ -798,6 +945,37 @@ display_board(board,x,y)
 
 final_col,final_row = calculate_pos(6,3,x,y,0,map_dict)
 map_dict,last_location = player_movement(map_dict,map_dict_org,"player1",player_list,last_location,final_col,final_row,snakes_ladders)
+final_col,final_row = calculate_pos(6,3,x,y,1,map_dict)
+map_dict,last_location = player_movement(map_dict,map_dict_org,"player2",player_list,last_location,final_col,final_row,snakes_ladders)
 board = []
 board = create_board(map_dict,board,x,y)
+display_board(board,x,y)"""
+
+map_dict = map_create(map_dict,x,y)
+
+#print(map_dict)
+
+create_board(map_dict,board,x,y)
+display_board(board,x,y)
+map_dict,snakes_ladders = create_snake(snakes_ladders, map_dict, board, x, y)
+map_dict,snakes_ladders = create_ladder(snakes_ladders,map_dict,board,x,y)
+map_dict_org = map_dict.copy()
+print(snakes_ladders)
+
+board= []
+create_board(map_dict,board,x,y)
+display_board(board,x,y)
+
+player_list = create_player2(2,2,x,y)
+map_dict,last_location = player_placement(map_dict,player_list,True)
+
+board = []
+create_board(map_dict, board, x, y)
+display_board(board,x,y)
+
+final_col,final_row = calculate_pos(1,1,x,y,20,map_dict)
+player_movement(map_dict,map_dict_org,"player1",player_list,last_location, final_col, final_row, snakes_ladders)
+
+board = []
+create_board(map_dict, board, x, y)
 display_board(board,x,y)
