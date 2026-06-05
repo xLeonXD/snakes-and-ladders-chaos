@@ -711,17 +711,17 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
     if map_dict[new_pos] == "V":
         print("WE ARE IN V")
         print("new_pos",new_pos)
-        placeholder = False
+        snake_num = False
         for i in snakes_ladders:
             print("i",i)
             print("snakes_ladders[i]",snakes_ladders[i])
             if i.startswith("snake_head"):
-                if new_pos == snakes_ladders[i] and not placeholder:
-                    placeholder = i.replace("snake_head","")
-                    print(placeholder)
+                if new_pos == snakes_ladders[i] and not snake_num:
+                    snake_num = i.replace("snake_head","")
+                    print(snake_num)
                     #return map_dict,last_location
-        if placeholder:
-            final_col,final_row = parse_coord(snakes_ladders[f"snake_tail{placeholder}"])
+        if snake_num:
+            final_col,final_row = parse_coord(snakes_ladders[f"snake_tail{snake_num}"])
             return player_movement(map_dict, map_dict_org, player, player_list, last_location, final_col, final_row, snakes_ladders)
             """new_pos = f"c{final_col}r{final_row}"
             if map_dict[new_pos] == "^":
@@ -764,17 +764,17 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
     elif map_dict[new_pos] == "H":
         print("WE ARE IN H")
         print("new_pos", new_pos)
-        placeholder = False
+        ladder_num = False
         for i in snakes_ladders:
             print("i", i)
             print("snakes_ladders[i]", snakes_ladders[i])
             if i.startswith("ladder_tail"):
-                if new_pos == snakes_ladders[i] and not placeholder:
-                    placeholder = i.replace("ladder_tail", "")
-                    print(placeholder)
+                if new_pos == snakes_ladders[i] and not ladder_num:
+                    ladder_num = i.replace("ladder_tail", "")
+                    print(ladder_num)
                     # return map_dict,last_location
-        if placeholder:
-            final_col, final_row = parse_coord(snakes_ladders[f"ladder_head{placeholder}"])
+        if ladder_num:
+            final_col, final_row = parse_coord(snakes_ladders[f"ladder_head{ladder_num}"])
             return player_movement(map_dict, map_dict_org, player, player_list, last_location, final_col, final_row,snakes_ladders)
 
     #*-------------------PLAYER-------------------*#
