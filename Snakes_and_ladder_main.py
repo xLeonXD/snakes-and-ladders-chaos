@@ -65,6 +65,7 @@ display_board(board,x,y)"""
 map_dict = {}
 board = []
 snakes_ladders = {}
+player_turn = 0
 
 x,y = 10,10
 
@@ -702,7 +703,7 @@ def player_placement(map_dict,player_list,turn_0):
 
 def player_movement(map_dict,map_dict_org,player,player_list,last_location,final_col,final_row,snakes_ladders):
     # places the player based on next location
-    
+
     old_pos = last_location[player]
     new_pos = f"c{final_col}r{final_row}"
     #*-------------------SNAKE-------------------*#
@@ -768,6 +769,36 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
         map_dict[new_pos] = player
         last_location[player] = new_pos
         return map_dict,last_location
+
+def turn_order(player_list,player_turn,dice_roll,x,y):
+    action_list = ["1","2","3"]
+    action = False
+    turn_amount = 1
+    player_amount = len(player_list)
+    if player_turn > player_amount:
+        player_turn = 0
+    if turn_amount:
+        while not action:
+            print(" 1 ) Roll dice ")
+            print(" 2 ) Use items ")
+            print(" 3 ) forfeit turn ")
+            action = input("What will you do ? ")
+            if action in action_list:
+                pass
+            else:
+                print("wrong input, try again.")
+                action = False
+    if action == str(1):
+        pass
+    elif action == str(2):
+        pass
+    elif action == str(3):
+        pass
+
+    player_turn += 1
+    return player_turn
+
+
 
 # HOW TO SETUP :
 #   map_create ( map_dict )
