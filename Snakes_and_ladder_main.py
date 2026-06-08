@@ -653,6 +653,8 @@ def calculate_pos(col,row,x,y,dice_roll,map_dict):
             print("Dice rolled out of the map!")
             return None,None
 
+
+
 def roll_dice(dice_range,type,max_roll,*args):
     # add presets in game loop
     # presets:
@@ -660,12 +662,12 @@ def roll_dice(dice_range,type,max_roll,*args):
     # d20 for huge maps - type normal
     # d3 for smaller maps - type normal
     dice_range1 = None
-    if type == "normal":
+    if type == "normal_dice":
         dice_range1 = 1
-    elif type == "heavy_roll":
+    elif type == "heavy_roll_dice":
         dice_range1 = dice_range * 0.5
         dice_range1 = dice_range1.ceil()
-    elif type == "light_roll":
+    elif type == "light_roll_dice":
         dice_range1 = 1
         dice_range = dice_range * 0.5
         dice_range = dice_range.floor()
@@ -693,6 +695,12 @@ def roll_dice(dice_range,type,max_roll,*args):
     else:
         print("Something went wrong in roll_dice")
         return None
+
+dice_list = ["normal_dice",
+             "heavy_roll_dice",
+             "light_roll_dice",
+             "double_dice",
+             "custom_dice",]
 
 def player_placement(map_dict,player_list,turn_0):
     if turn_0:
@@ -775,7 +783,7 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
         last_location[player] = new_pos
         return map_dict,last_location
 
-def turn_order(player_list,player_turn,dice_roll,x,y):
+def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
     action_list = ["1","2","3"]
     action = False
     turn_amount = 1
@@ -794,9 +802,29 @@ def turn_order(player_list,player_turn,dice_roll,x,y):
                 print("wrong input, try again.")
                 action = False
     if action == str(1):
+        dice = False
+        while not dice:
+            n = 1
+            print("Choose one of the following options.")
+            for i in dice_list:
+                print(f"{n} ) {i}")
+                n += 1
+            dice = input()
+            try:
+                dice = int(dice)
+            except TypeError:
+                print("Wrong, choose again!")
+                dice = False
+            if dice in range(1,len(dice_list)+1):
+                pass
+            else:
+                print("Wrong,choose again!")
+                dice = False
+
+
         turn_amount -= 1
-        dice_roll = roll_dice(6,"normal",False)
-        max_roll = roll_dice(6,"normal",True)
+        dice_roll = roll_dice(dice_range,dice_list[dice],False)
+        max_roll = roll_dice(dice_range,dice_list[dice],True)
         if dice_roll == max_roll:
             turn_amount += 1
     elif action == str(2):
@@ -806,7 +834,7 @@ def turn_order(player_list,player_turn,dice_roll,x,y):
         turn_amount -= 1
         pass
     if turn_amount > 0:
-        return turn_order(player_list,player_turn,dice_roll,x,y)
+        return turn_order(player_list,player_turn,dice_range,dice_list,x,y)
     player_turn += 1
     return player_turn
 
