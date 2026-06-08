@@ -653,7 +653,7 @@ def calculate_pos(col,row,x,y,dice_roll,map_dict):
             print("Dice rolled out of the map!")
             return None,None
 
-def roll_dice(dice_range,type,*args):
+def roll_dice(dice_range,type,max_roll,*args):
     # add presets in game loop
     # presets:
     # d6, normal maps - type normal
@@ -669,6 +669,9 @@ def roll_dice(dice_range,type,*args):
         dice_range1 = 1
         dice_range = dice_range * 0.5
         dice_range = dice_range.floor()
+    elif type == "double_dice":
+        dice_range1 = 1
+        dice_range = 2 * dice_range
     elif type == "custom_dice" and args:
         # must be within dice_range
         custom_num = args[0]
@@ -681,7 +684,9 @@ def roll_dice(dice_range,type,*args):
                 dice_roll = custom_num
     else:
         print("Dice type is wrong.")
-    if dice_range and dice_range1 and type:
+    if dice_range and dice_range1 and type and max_roll:
+        dice_roll = dice_range
+    elif dice_range and dice_range1 and type:
         dice_roll = random.randint(dice_range1,dice_range)
     if dice_roll:
         return dice_roll
@@ -777,7 +782,7 @@ def turn_order(player_list,player_turn,dice_roll,x,y):
     player_amount = len(player_list)
     if player_turn > player_amount:
         player_turn = 0
-    if turn_amount:
+    if turn_amount: # unnecessary
         while not action:
             print(" 1 ) Roll dice ")
             print(" 2 ) Use items ")
@@ -789,12 +794,19 @@ def turn_order(player_list,player_turn,dice_roll,x,y):
                 print("wrong input, try again.")
                 action = False
     if action == str(1):
-        pass
+        turn_amount -= 1
+        dice_roll = roll_dice(6,"normal",False)
+        max_roll = roll_dice(6,"normal",True)
+        if dice_roll == max_roll:
+            turn_amount += 1
     elif action == str(2):
+        turn_amount -= 1
         pass
     elif action == str(3):
+        turn_amount -= 1
         pass
-
+    if turn_amount > 0:
+        return turn_order(player_list,player_turn,dice_roll,x,y)
     player_turn += 1
     return player_turn
 
