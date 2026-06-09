@@ -787,6 +787,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
     action_list = ["1","2","3"]
     action = False
     turn_amount = 1
+    dice = False
     player_amount = len(player_list)
     if player_turn > player_amount:
         player_turn = 0
@@ -802,7 +803,6 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
                 print("wrong input, try again.")
                 action = False
     if action == str(1):
-        dice = False
         while not dice:
             n = 1
             print("Choose one of the following options.")
@@ -820,7 +820,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
             else:
                 print("Wrong,choose again!")
                 dice = False
-
+        # player calcuation goes here
 
         turn_amount -= 1
         dice_roll = roll_dice(dice_range,dice_list[dice],False)
@@ -831,6 +831,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
         turn_amount -= 1
         pass
     elif action == str(3):
+        print("You forfeit your turn.")
         turn_amount -= 1
         pass
     if turn_amount > 0:
