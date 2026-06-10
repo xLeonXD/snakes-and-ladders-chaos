@@ -1,5 +1,5 @@
 import random
-
+import math
 """
 
 5 layers of data is used for now
@@ -666,11 +666,11 @@ def roll_dice(dice_range,type,max_roll,*args):
         dice_range1 = 1
     elif type == "heavy_roll_dice":
         dice_range1 = dice_range * 0.5
-        dice_range1 = dice_range1.ceil()
+        dice_range1 = math.ceil(dice_range1)
     elif type == "light_roll_dice":
         dice_range1 = 1
         dice_range = dice_range * 0.5
-        dice_range = dice_range.floor()
+        dice_range = math.floor(dice_range)
     elif type == "double_dice":
         dice_range1 = 1
         dice_range = 2 * dice_range
@@ -788,7 +788,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
     action = False
     turn_amount = 1
     dice = False
-    player_amount = len(player_list)
+    player_amount = len(player_list) - 1
     if player_turn > player_amount:
         player_turn = 0
     if turn_amount: # unnecessary
@@ -804,7 +804,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
                 action = False
     if action == str(1):
         while not dice:
-            n = 1
+            n = 0
             print("Choose one of the following options.")
             for i in dice_list:
                 print(f"{n} ) {i}")
@@ -815,8 +815,8 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
             except TypeError:
                 print("Wrong, choose again!")
                 dice = False
-            if dice in range(1,len(dice_list)+1):
-                pass
+            if 0 <= dice <= len(dice_list)-1:
+                break
             else:
                 print("Wrong,choose again!")
                 dice = False
@@ -874,13 +874,19 @@ display_board(board,x,y)
 player_list = create_player2(2,2,x,y)
 map_dict,last_location = player_placement(map_dict,player_list,True)
 
-board = []
+"""board = []
 create_board(map_dict, board, x, y)
 display_board(board,x,y)
 
 final_col,final_row = calculate_pos(1,1,x,y,30,map_dict)
 player_movement(map_dict,map_dict_org,"player1",player_list,last_location, final_col, final_row, snakes_ladders)
-
+"""
 board = []
 create_board(map_dict, board, x, y)
+display_board(board,x,y)
+
+turn_order(player_list,0,6,dice_list, x, y, last_location, map_dict, map_dict_org, snakes_ladders)
+
+board = []
+create_board(map_dict,board,x,y)
 display_board(board,x,y)
