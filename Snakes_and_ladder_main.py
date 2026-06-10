@@ -783,7 +783,7 @@ def player_movement(map_dict,map_dict_org,player,player_list,last_location,final
         last_location[player] = new_pos
         return map_dict,last_location
 
-def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
+def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,map_dict,map_dict_org,snakes_ladders):
     action_list = ["1","2","3"]
     action = False
     turn_amount = 1
@@ -821,9 +821,16 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
                 print("Wrong,choose again!")
                 dice = False
         # player calcuation goes here
+        dice_roll = roll_dice(dice_range, dice_list[dice], False)
+        final_col , final_row = parse_coord(last_location[player_list[player_turn]])
+        final_col , final_row = calculate_pos(final_col,final_row,x,y,dice_roll,map_dict)
+        if final_col and final_row:
+            map_dict,last_location = player_movement(map_dict,map_dict_org,player_list[player_turn],player_list,last_location,final_col,final_row,snakes_ladders)
+        else:
+            pass
+
 
         turn_amount -= 1
-        dice_roll = roll_dice(dice_range,dice_list[dice],False)
         max_roll = roll_dice(dice_range,dice_list[dice],True)
         if dice_roll == max_roll:
             turn_amount += 1
@@ -835,9 +842,9 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y):
         turn_amount -= 1
         pass
     if turn_amount > 0:
-        return turn_order(player_list,player_turn,dice_range,dice_list,x,y)
+        return turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location, map_dict, map_dict_org, snakes_ladders)
     player_turn += 1
-    return player_turn
+    return player_turn,map_dict,last_location
 
 
 
