@@ -846,7 +846,13 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
     player_turn += 1
     return player_turn,map_dict,last_location
 
-
+def win_check(map_dict,player_list,x,y):
+    win_location = map_dict[f"c{x}r{y}"]
+    if win_location in player_list:
+        print(f"{win_location} won!!")
+        return True
+    else:
+        return False
 
 # HOW TO SETUP :
 #   map_create ( map_dict )
