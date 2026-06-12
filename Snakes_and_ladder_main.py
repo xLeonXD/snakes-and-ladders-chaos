@@ -854,6 +854,14 @@ def win_check(map_dict,player_list,x,y):
     else:
         return False
 
+class ValueErrorPlayer(ValueError):
+    pass
+class ValueErrorX(ValueError):
+    pass
+class ValueErrorY(ValueError):
+    pass
+
+
 # HOW TO SETUP :
 #   map_create ( map_dict )
 #   create_board ( map_dict )
@@ -861,7 +869,7 @@ def win_check(map_dict,player_list,x,y):
 #   map_dict,snakes_ladders = create_snake(snakes_ladders,map_dict,board,x,y)
 #   map_dict_org = map_dict.copy()
 
-
+"""
 map_dict = map_create(map_dict,x,y)
 
 #print(map_dict)
@@ -880,13 +888,6 @@ display_board(board,x,y)
 player_list = create_player2(2,2,x,y)
 map_dict,last_location = player_placement(map_dict,player_list,True)
 
-"""board = []
-create_board(map_dict, board, x, y)
-display_board(board,x,y)
-
-final_col,final_row = calculate_pos(1,1,x,y,30,map_dict)
-player_movement(map_dict,map_dict_org,"player1",player_list,last_location, final_col, final_row, snakes_ladders)
-"""
 board = []
 create_board(map_dict, board, x, y)
 display_board(board,x,y)
@@ -895,4 +896,48 @@ turn_order(player_list,0,6,dice_list, x, y, last_location, map_dict, map_dict_or
 
 board = []
 create_board(map_dict,board,x,y)
-display_board(board,x,y)
+display_board(board,x,y)"""
+
+#--------------------- GAME ----------------------#
+
+print("How many players,cpus ?")
+player_amount = input("player = : ") # - player amount - #
+try:
+    player_amount = int(player_amount)
+except ValueError:
+    raise ValueErrorPlayer
+cpu_amount = 0
+
+print("How big should the map be ? x - y")
+x = input("x = : ") # - x - #
+try:
+    x = int(x)
+except ValueError:
+    raise ValueErrorX
+
+y = input("y = : ") # - y - #
+try:
+    y = int(y)
+except ValueError:
+    raise ValueErrorY
+
+map_dict = {} # - map_dict - #
+map_dict = map_create(map_dict,x,y)
+
+board = [] # -  board - #
+create_board(map_dict,board,x,y)
+
+player_list = create_player2(player_amount,cpu_amount,x,y) # - player list - #
+map_dict , last_location = player_placement(map_dict,player_list,True) # - turn 0 player placement - #
+
+snakes_ladders = {} # - snakes and ladders - #
+map_dict , snakes_ladders = create_snake(snakes_ladders, map_dict, board, x, y)
+map_dict , snakes_ladders = create_ladder(snakes_ladders,map_dict,board,x,y)
+
+game_over = False
+while not game_over: # - GAME LOOP - #
+    board = []
+    board = create_board(map_dict,board,x,y)
+    display_board(board,x,y)
+    break
+
