@@ -792,6 +792,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
     if player_turn > player_amount:
         player_turn = 0
     if turn_amount: # unnecessary
+        print(f"It is now {player_list[player_turn]}'s turn!")
         while not action:
             print(" 1 ) Roll dice ")
             print(" 2 ) Use items ")
@@ -822,6 +823,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
                 dice = False
         # player calcuation goes here
         dice_roll = roll_dice(dice_range, dice_list[dice], False)
+        print(f"You rolled {dice_roll}")
         final_col , final_row = parse_coord(last_location[player_list[player_turn]])
         final_col , final_row = calculate_pos(final_col,final_row,x,y,dice_roll,map_dict)
         if final_col and final_row:
@@ -847,7 +849,7 @@ def turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location,ma
     return player_turn,map_dict,last_location
 
 def win_check(map_dict,player_list,x,y):
-    win_location = map_dict[f"c{x}r{y}"]
+    win_location = map_dict[f"c{1}r{y}"]
     if win_location in player_list:
         print(f"{win_location} won!!")
         return True
@@ -860,7 +862,8 @@ class ValueErrorX(ValueError):
     pass
 class ValueErrorY(ValueError):
     pass
-
+class ValueErrorDiceRange(ValueError):
+    pass
 
 # HOW TO SETUP :
 #   map_create ( map_dict )
@@ -921,6 +924,12 @@ try:
 except ValueError:
     raise ValueErrorY
 
+print("How many sides should the dice have ? ")
+dice_range = input("Dice sides = : ")
+try:
+    dice_range = int(dice_range)
+except ValueError:
+    raise ValueErrorDiceRange
 map_dict = {} # - map_dict - #
 map_dict = map_create(map_dict,x,y)
 
@@ -928,16 +937,22 @@ board = [] # -  board - #
 create_board(map_dict,board,x,y)
 
 player_list = create_player2(player_amount,cpu_amount,x,y) # - player list - #
-map_dict , last_location = player_placement(map_dict,player_list,True) # - turn 0 player placement - #
 
 snakes_ladders = {} # - snakes and ladders - #
 map_dict , snakes_ladders = create_snake(snakes_ladders, map_dict, board, x, y)
 map_dict , snakes_ladders = create_ladder(snakes_ladders,map_dict,board,x,y)
 
+map_dict_org = map_dict.copy()
+map_dict , last_location = player_placement(map_dict,player_list,True) # - turn 0 player placement - #
+
 game_over = False
 while not game_over: # - GAME LOOP - #
+    print(map_dict[f"c{x}r{y}"])
     board = []
     board = create_board(map_dict,board,x,y)
     display_board(board,x,y)
-    break
-
+    player_turn , map_dict , last_location = turn_order(player_list,player_turn,dice_range,dice_list,x,y,last_location, map_dict, map_dict_org, snakes_ladders)
+    game_over = win_check(map_dict,player_list,x,y)
+board = []
+board = create_board(map_dict,board,x,y)
+display_board(board,x,y)
